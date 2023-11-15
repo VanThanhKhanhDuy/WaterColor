@@ -34,6 +34,7 @@ public class BottleController : MonoBehaviour
     private bool hasPlayedSound = false;
     public bool win = false;
     private static List<BottleController> allBottlesInScene = new List<BottleController>();
+    public ParticleSystem particleSystemBottle;
 
     private void OnEnable()
     {
@@ -46,6 +47,7 @@ public class BottleController : MonoBehaviour
     }
     void Start()
     {
+        particleSystemBottle = GetComponentInChildren<ParticleSystem>();
         bottleMaskSR.material.SetFloat("_FillAmount", fillAmounts[numberOfColorsInBottle]);
         originalPosition = transform.position;
         UpdateColorsOnShader();
@@ -79,6 +81,7 @@ public class BottleController : MonoBehaviour
             if (!hasPlayedSound){
                 filledSound.Play();
                 hasPlayedSound = true;
+                particleSystemBottle.Play();
             }
             return true;
         }
