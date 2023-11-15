@@ -32,6 +32,18 @@ public class BottleController : MonoBehaviour
     public AudioSource pourSound;
     public AudioSource filledSound;
     private bool hasPlayedSound = false;
+    public bool win = false;
+    private static List<BottleController> allBottlesInScene = new List<BottleController>();
+
+    private void OnEnable()
+    {
+        allBottlesInScene.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        allBottlesInScene.Remove(this);
+    }
     void Start()
     {
         bottleMaskSR.material.SetFloat("_FillAmount", fillAmounts[numberOfColorsInBottle]);
@@ -55,23 +67,22 @@ public class BottleController : MonoBehaviour
         //     CaculateRotationIndex(4 - bottleControllerRef.numberOfColorsInBottle);
         //     StartCoroutine(RotateBottle());
         // }
+        CheckVictory();
+        if(CheckVictory()){
+            StartCoroutine(FewSecsBeforeTurnNextScene());
+        }
     }
     public bool CheckAllColorsSame(){
     if (numberOfColorsInBottle == 4)
     {
-        // Check if all colors are the same
-        if (bottleColors[0] == bottleColors[1] && bottleColors[1] == bottleColors[2] && bottleColors[2] == bottleColors[3])
-        {
-            if (!hasPlayedSound)
-            {
+        if (bottleColors[0] == bottleColors[1] && bottleColors[1] == bottleColors[2] && bottleColors[2] == bottleColors[3]){
+            if (!hasPlayedSound){
                 filledSound.Play();
-                hasPlayedSound = true; // Set the flag to true after playing the sound
+                hasPlayedSound = true;
             }
             return true;
         }
-        else
-        {
-            // Reset the flag if colors are no longer the same
+        else{
             hasPlayedSound = false;
         }
     }
@@ -263,5 +274,27 @@ public class BottleController : MonoBehaviour
             chosenRotationPoint = rightRotationPoint;
             directionMultiplier = 1.0f;
         }
+    }
+    void VictoryCondition(){
+        win = false;
+        if(CheckAllColorsSame() || numberOfColorsInBottle == 0){
+            win = true;
+        }
+    }
+    
+    public static bool CheckVictory(){
+        foreach (BottleController bottle in allBottlesInScene){
+            bottle.VictoryCondition();
+            if (!bottle.win){
+            return false;
+            }
+        }
+    
+    Debug.Log("Victory Achieved!");
+    return true;
+    }
+    IEnumerator FewSecsBeforeTurnNextScene(){
+        yield return new WaitForSeconds(2f);
+        SceneMana.SceneManagement();
     }
 }
